@@ -28,9 +28,7 @@ gcloud beta container clusters create $CLUSTER_NAME \
  --region=europe-west1-b \
  --machine-type=n1-standard-4 \
  --num-nodes=2
-```
 
-```bash
 cat setup-sa.yaml | sed "s/{project_id}/$PROJECT_ID/" | kubectl create -f -
 jx ns jx
 ```
