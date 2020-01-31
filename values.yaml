@@ -1,11 +1,15 @@
 boot:
+  clusterName:
   bootGitURL: https://github.com/jenkins-x-labs/boot-helmfile-poc.git
   bootGitRef: master
+  userEmail:
+  projectID:
+  tls:
+    production: no
+  zone:
   versionsGitURL: https://github.com/jenkins-x/jenkins-x-versions.git
   versionsGitRef: master
-  userEmail:
-  clusterName:
-  zone:
+
 secrets:
   adminUser:
     username:

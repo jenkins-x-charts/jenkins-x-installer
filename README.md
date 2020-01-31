@@ -196,6 +196,7 @@ jx ns jx
 helm install jx-boot \
   --set boot.clusterName=$CLUSTER_NAME \
   --set boot.zone=$ZONE \
+  --set boot.projectID=$PROJECT_ID \
   --set secrets.adminUser.username=$SECRET_ADMINUSER_USERNAME \
   --set secrets.adminUser.password=$SECRET_ADMINUSER_PASSWORD \
   --set secrets.hmacToken=$SECRET_HMACTOKEN \
