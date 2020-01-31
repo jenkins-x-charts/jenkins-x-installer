@@ -41,12 +41,12 @@ gcloud iam service-accounts create $CLUSTER_NAME-vt
 
 ```
 
+## create base resources needed for the Jenkins X installation
+
 ```bash
-cat setup.yaml | sed "s/{project_id}/$PROJECT_ID/" | kubectl create -f -
-cat setup-old.yaml | sed "s/{project_id}/$PROJECT_ID/"  | sed "s/{cluster_name}/$CLUSTER_NAME/" | kubectl create -f -
+kubectl create -f setup.yaml
+cat setup-old.yaml | sed "s/{project_id}/$PROJECT_ID/" | sed "s/{cluster_name}/$CLUSTER_NAME/" | kubectl apply -f -
 ```
-
-
 
 ```bash
 
@@ -81,42 +81,25 @@ gcloud iam service-accounts add-iam-policy-binding \
   $CLUSTER_NAME-vt@$PROJECT_ID.iam.gserviceaccount.com
 ```
 
-```
-cat annotate-sa.yaml | sed "s/{project_id}/$PROJECT_ID/" | kubectl apply -f -
-```
-## we need to annotate teh kubernetes service accounts after the policy bindings
+## verify
+
+it can a little while for permissions to propogate when using workload identity so it's a good idea to validate auth is working before continuing to the next step.
+
+run a temporary pod with one of our kubernetes service accounts
 
 ```bash
-kubectl annotate serviceaccount \
+kubectl run --rm -it \
+  --generator=run-pod/v1 \
+  --image google/cloud-sdk:slim \
+  --serviceaccount boot-sa \
   --namespace jx \
-  externaldns-sa \
-  iam.gke.io/gcp-service-account=$CLUSTER_NAME-ex@$PROJECT_ID.iam.gserviceaccount.com
+  workload-identity-test
+```
 
-kubectl annotate serviceaccount \
-  --namespace jx \
-  boot-sa \
-  iam.gke.io/gcp-service-account=$CLUSTER_NAME-jb@$PROJECT_ID.iam.gserviceaccount.com
+use gcloud to verify you can auth, it make take a few tries over a few minutes
 
-kubectl annotate serviceaccount \
-  --namespace jx \
-  kaniko-sa \
-  iam.gke.io/gcp-service-account=$CLUSTER_NAME-ko@$PROJECT_ID.iam.gserviceaccount.com
-
-kubectl annotate serviceaccount \
-  --namespace jx \
-  storage-sa \
-  iam.gke.io/gcp-service-account=$CLUSTER_NAME-st@$PROJECT_ID.iam.gserviceaccount.com
-
-kubectl annotate serviceaccount \
-  --namespace jx \
-  velero-sa \
-  iam.gke.io/gcp-service-account=$CLUSTER_NAME-vo@$PROJECT_ID.iam.gserviceaccount.com
-
-kubectl annotate serviceaccount \
-  --namespace jx \
-  vault-sa \
-  iam.gke.io/gcp-service-account=$CLUSTER_NAME-vt@$PROJECT_ID.iam.gserviceaccount.com
-
+```bash
+gcloud auth list
 ```
 
 ## add the installer to your clusters
