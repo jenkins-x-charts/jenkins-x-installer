@@ -1,0 +1,17 @@
+boot:
+  bootGitURL: https://github.com/jenkins-x-labs/boot-helmfile-poc.git
+  bootGitRef: master
+  versionsGitURL: https://github.com/jenkins-x/jenkins-x-versions.git
+  versionsGitRef: master
+  userEmail:
+  clusterName:
+  zone:
+secrets:
+  adminUser:
+    username:
+    password:
+  hmacToken:
+  pipelineUser:
+    username:
+    email:
+    token:

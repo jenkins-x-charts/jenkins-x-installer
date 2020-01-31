@@ -7,6 +7,13 @@ Set some local environment varialbles
 ```bash
 export CLUSTER_NAME=
 export PROJECT_ID=
+export ZONE=
+export SECRET_ADMINUSER_USERNAME=
+export SECRET_ADMINUSER_PASSWORD=
+export SECRET_HMACTOKEN=
+export SECRET_PIPELINEUSER_USERNAME=
+export SECRET_PIPELINEUSER_EMAIL=
+export SECRET_PIPELINEUSER_TOKEN=
 ```
 
 
@@ -19,8 +26,7 @@ gcloud beta container clusters create $CLUSTER_NAME \
  --identity-namespace=$PROJECT_ID.svc.id.goog \
  --region=europe-west1-b \
  --machine-type=n1-standard-4 \
- --num-nodes=1 \
- --cluster-version=latest
+ --num-nodes=2
 ```
 
 ```bash
@@ -70,4 +76,19 @@ gcloud iam service-accounts add-iam-policy-binding \
   --role roles/iam.workloadIdentityUser \
   --member "serviceAccount:$PROJECT_ID.svc.id.goog[jx/vault-sa]" \
   $CLUSTER_NAME-vt@$PROJECT_ID.iam.gserviceaccount.com
+```
+
+## add the installer to your cluster
+
+```bash
+helm install jx-boot \
+  --set boot.clusterName=$CLUSTER_NAME \
+  --set boot.zone=$ZONE \
+  --set secrets.adminUser.username=$SECRET_ADMINUSER_USERNAME \
+  --set secrets.adminUser.password=$SECRET_ADMINUSER_PASSWORD \
+  --set secrets.hmacToken=$SECRET_HMACTOKEN \
+  --set secrets.pipelineUser.username=$SECRET_PIPELINEUSER_USERNAME \
+  --set secrets.pipelineUser.email=$SECRET_PIPELINEUSER_EMAIL \
+  --set secrets.pipelineUser.token=$SECRET_PIPELINEUSER_TOKEN \
+  .
 ```

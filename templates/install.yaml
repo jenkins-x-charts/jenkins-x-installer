@@ -1,0 +1,97 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    release: jenkins-x
+  name: jx-boot
+  namespace: jx
+spec:
+  backoffLimit: 5
+  completions: 1
+  parallelism: 1
+  template:
+    metadata:
+      labels:
+        release: jenkins-x
+    spec:
+      initContainers:
+      - name: init-secrets
+        image: jenkinsxio/envsubst:0.0.1
+        args:
+        - secrets.yaml
+        # command:
+        # - sleep
+        # args:
+        # - infinity
+        env:
+        - name: ADMINUSER_USERNAME
+          value: {{ .Values.secrets.adminUser.username | quote }}
+        - name: ADMINUSER_PASSWORD
+          value: {{ .Values.secrets.adminUser.password | quote }}
+        - name: HMACTOKEN
+          value: {{ .Values.secrets.hmacToken | quote }}
+        - name: PIPELINEUSER_USERNAME
+          value: {{ .Values.secrets.pipelineUser.username | quote }}
+        - name: PIPELINEUSER_EMAIL
+          value: {{ .Values.secrets.pipelineUser.email | quote }}
+        - name: PIPELINEUSER_TOKEN
+          value: {{ .Values.secrets.pipelineUser.token | quote }}
+        volumeMounts:
+        - name: config-volume
+          mountPath: /workdir/secrets.yaml
+          subPath: secrets.yaml
+        - name: workdir
+          mountPath: "/processed"
+      containers:
+      # - command:
+      #   - sleep
+      #   args:
+      #   - infinity
+      - args:
+        - boot
+        - -b
+        - --git-url
+        - {{ .Values.boot.bootGitURL | quote }}
+        - --git-ref
+        - {{ .Values.boot.bootGitRef | quote }}
+        - --versions-repo
+        - {{ .Values.boot.versionsGitURL | quote }}
+        - --versions-ref
+        - {{ .Values.boot.versionsGitRef | quote }}
+        command:
+        - jx
+        env:
+        - name: GIT_COMMITTER_EMAIL
+          value: jenkins-x@googlegroups.com
+        - name: GIT_AUTHOR_EMAIL
+          value: jenkins-x@googlegroups.com
+        - name: GIT_AUTHOR_NAME
+          value: jenkins-x-bot
+        - name: GIT_COMMITTER_NAME
+          value: jenkins-x-bot
+        - name: JX_BATCH_MODE
+          value: "true"
+        - name: JX_LOG_FORMAT
+          value: "json"
+        - name: JX_REQUIREMENT_CLUSTER_NAME
+          value: {{ .Values.boot.clusterName | quote }}
+        - name: JX_REQUIREMENT_ZONE
+          value: {{ .Values.boot.zone | quote }}
+        - name: USER_EMAIL
+          value: {{ .Values.boot.userEmail | quote }}
+        - name: JX_SECRETS_DIR
+          value: /secrets/secrets.yaml
+        image: jenkinsxio/jenkins-x-installer:0.0.1
+        imagePullPolicy: IfNotPresent
+        name: boot
+        volumeMounts:
+          - name: workdir
+            mountPath: "/secrets"
+      restartPolicy: Never
+      serviceAccount: boot-sa
+      volumes:
+      - name: workdir
+        emptyDir: {}
+      - name: config-volume
+        configMap:
+          name: boot-secrets-template
