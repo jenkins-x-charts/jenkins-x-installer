@@ -5,6 +5,7 @@
 
 Set some local environment varialbles
 ```bash
+export NAMESPACE=jx
 export CLUSTER_NAME=
 export PROJECT_ID=
 export ZONE=
@@ -29,8 +30,8 @@ gcloud beta container clusters create $CLUSTER_NAME \
  --machine-type=n1-standard-4 \
  --num-nodes=2
 
-cat setup-sa.yaml | sed "s/{project_id}/$PROJECT_ID/" | kubectl create -f -
-jx ns jx
+cat setup-sa.yaml | sed "s/{namespace}/$NAMESPACE/" | sed "s/{project_id}/$PROJECT_ID/" | kubectl create -f -
+jx ns $NAMESPACE
 ```
 
 Create GCP service accounts that we can link Kubernetes service accounts using workload identity
