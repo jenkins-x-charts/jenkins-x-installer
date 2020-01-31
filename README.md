@@ -8,6 +8,7 @@ Set some local environment varialbles
 export CLUSTER_NAME=
 export PROJECT_ID=
 export ZONE=
+
 export SECRET_ADMINUSER_USERNAME=
 export SECRET_ADMINUSER_PASSWORD=
 export SECRET_HMACTOKEN=
@@ -44,9 +45,6 @@ gcloud iam service-accounts create $CLUSTER_NAME-tk
 gcloud iam service-accounts create $CLUSTER_NAME-vo
 gcloud iam service-accounts create $CLUSTER_NAME-vt
 
-```
-
-```bash
 gcloud iam service-accounts add-iam-policy-binding \
   --role roles/iam.workloadIdentityUser \
   --member "serviceAccount:$PROJECT_ID.svc.id.goog[jx/boot-sa]" \
