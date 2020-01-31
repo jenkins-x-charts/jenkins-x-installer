@@ -19,10 +19,6 @@ spec:
         image: jenkinsxio/envsubst:0.0.1
         args:
         - secrets.yaml
-        # command:
-        # - sleep
-        # args:
-        # - infinity
         env:
         - name: ADMINUSER_USERNAME
           value: {{ .Values.secrets.adminUser.username | quote }}
@@ -81,7 +77,7 @@ spec:
           value: {{ .Values.boot.userEmail | quote }}
         - name: JX_SECRETS_DIR
           value: /secrets/secrets.yaml
-        image: jenkinsxio/jenkins-x-installer:0.0.1
+        image: jenkinsxio/jenkins-x-installer:0.0.2
         imagePullPolicy: IfNotPresent
         name: boot
         volumeMounts:
