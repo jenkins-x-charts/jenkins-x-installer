@@ -5,7 +5,7 @@ These installer docs helps you create a new cluster on Google Cloud Platform, pr
 __NOTE__: This installer is experimental so don't install into an existing Kubernetes cluster and if possible you should use a new GCP project so that any IAM, Bucket or Networking resources do not affect existing workloads.
 
 
-## Prerequisits
+# Prerequisits
 
 This is experimental so for now this installer is aimed at:
 - Google Cloud Platform Kubernetes (GKE)
@@ -34,6 +34,8 @@ export SECRET_PIPELINEUSER_EMAIL=
 export SECRET_PIPELINEUSER_TOKEN=
 ```
 
+# Create a new cluster on GCP with Googles workload identity enabled
+
 ```bash
 gcloud beta container clusters create $CLUSTER_NAME \
  --enable-autoscaling \
@@ -44,6 +46,15 @@ gcloud beta container clusters create $CLUSTER_NAME \
  --region=europe-west1-b \
  --machine-type=n1-standard-4 \
  --num-nodes=2
+```
+
+# Provision
+
+As this is still experimental there's no official helm chart yet so you will need to clone this repo to install
+
+```bash
+git clone https://github.com/jenkins-x-charts/jenkins-x-installer
+cd jenkins-x-installer
 ```
 
 Create GCP service accounts that we can link Kubernetes service accounts to, using workload identity
@@ -176,7 +187,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 
 ## Verify workload identity
 
-it can a little while for permissions to propogate when using workload identity so it's a good idea to validate auth is working before continuing to the next step.
+It can a little while for permissions to propogate when using workload identity so it's a good idea to validate auth is working before continuing to the next step.
 
 run a temporary pod with one of our kubernetes service accounts
 
