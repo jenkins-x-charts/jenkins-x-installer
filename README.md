@@ -6,10 +6,12 @@ NOTE: this installer is experimental so don't install into an existing Kubernete
 
 Set some local environment varialbles
 ```bash
+export NAMESPACE=jx
 export CLUSTER_NAME=
 export PROJECT_ID=
 export ENV_GIT_OWNER=
 export ZONE=
+
 export SECRET_ADMINUSER_USERNAME=
 export SECRET_ADMINUSER_PASSWORD=
 export SECRET_HMACTOKEN=
@@ -31,7 +33,7 @@ gcloud beta container clusters create $CLUSTER_NAME \
  --num-nodes=2
 ```
 
-Create GCP service accounts that we can link Kubernetes service accounts using workload identity
+Create GCP service accounts that we can link Kubernetes service accounts to, using workload identity
 
 ```bash
 gcloud iam service-accounts create $CLUSTER_NAME-ex
@@ -42,20 +44,12 @@ gcloud iam service-accounts create $CLUSTER_NAME-tk
 gcloud iam service-accounts create $CLUSTER_NAME-vo
 gcloud iam service-accounts create $CLUSTER_NAME-vt
 
-```
-
-## create base resources needed for the Jenkins X installation
-
-```bash
-cat setup.yaml | sed "s/{project_id}/$PROJECT_ID/" | sed "s/{cluster_name}/$CLUSTER_NAME/" | kubectl apply -f -
-```
-
-```bash
+cat setup.yaml | sed "s/{namespace}/$NAMESPACE/" | sed "s/{project_id}/$PROJECT_ID/" | sed "s/{cluster_name}/$CLUSTER_NAME/" | kubectl apply -f -
 
 # external dns
 gcloud iam service-accounts add-iam-policy-binding \
   --role roles/iam.workloadIdentityUser \
-  --member "serviceAccount:$PROJECT_ID.svc.id.goog[jx/externaldns-sa]" \
+  --member "serviceAccount:$PROJECT_ID.svc.id.goog[$NAMESPACE/externaldns-sa]" \
   $CLUSTER_NAME-ex@$PROJECT_ID.iam.gserviceaccount.com
 
 gcloud projects add-iam-policy-binding $PROJECT_ID \
@@ -65,7 +59,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 # jx boot
 gcloud iam service-accounts add-iam-policy-binding \
   --role roles/iam.workloadIdentityUser \
-  --member "serviceAccount:$PROJECT_ID.svc.id.goog[jx/boot-sa]" \
+  --member "serviceAccount:$PROJECT_ID.svc.id.goog[$NAMESPACE/boot-sa]" \
   $CLUSTER_NAME-jb@$PROJECT_ID.iam.gserviceaccount.com
 
 gcloud projects add-iam-policy-binding $PROJECT_ID \
@@ -91,7 +85,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 # kaniko
 gcloud iam service-accounts add-iam-policy-binding \
   --role roles/iam.workloadIdentityUser \
-  --member "serviceAccount:$PROJECT_ID.svc.id.goog[jx/kaniko-sa]" \
+  --member "serviceAccount:$PROJECT_ID.svc.id.goog[$NAMESPACE/kaniko-sa]" \
   $CLUSTER_NAME-ko@$PROJECT_ID.iam.gserviceaccount.com
 
 gcloud projects add-iam-policy-binding $PROJECT_ID \
@@ -109,7 +103,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 # tekton
 gcloud iam service-accounts add-iam-policy-binding \
   --role roles/iam.workloadIdentityUser \
-  --member "serviceAccount:$PROJECT_ID.svc.id.goog[jx/tekton-sa]" \
+  --member "serviceAccount:$PROJECT_ID.svc.id.goog[$NAMESPACE/tekton-sa]" \
   $CLUSTER_NAME-tk@$PROJECT_ID.iam.gserviceaccount.com
 
 gcloud projects add-iam-policy-binding $PROJECT_ID \
@@ -119,7 +113,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 # storage
 gcloud iam service-accounts add-iam-policy-binding \
   --role roles/iam.workloadIdentityUser \
-  --member "serviceAccount:$PROJECT_ID.svc.id.goog[jx/storage-sa]" \
+  --member "serviceAccount:$PROJECT_ID.svc.id.goog[$NAMESPACE/storage-sa]" \
   $CLUSTER_NAME-st@$PROJECT_ID.iam.gserviceaccount.com
 
 gcloud projects add-iam-policy-binding $PROJECT_ID \
@@ -133,7 +127,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 # velero
 gcloud iam service-accounts add-iam-policy-binding \
   --role roles/iam.workloadIdentityUser \
-  --member "serviceAccount:$PROJECT_ID.svc.id.goog[jx/velero-sa]" \
+  --member "serviceAccount:$PROJECT_ID.svc.id.goog[$NAMESPACE/velero-sa]" \
   $CLUSTER_NAME-vo@$PROJECT_ID.iam.gserviceaccount.com
 
 gcloud projects add-iam-policy-binding $PROJECT_ID \
@@ -151,7 +145,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 # vault
 gcloud iam service-accounts add-iam-policy-binding \
   --role roles/iam.workloadIdentityUser \
-  --member "serviceAccount:$PROJECT_ID.svc.id.goog[jx/vault-sa]" \
+  --member "serviceAccount:$PROJECT_ID.svc.id.goog[$NAMESPACE/vault-sa]" \
   $CLUSTER_NAME-vt@$PROJECT_ID.iam.gserviceaccount.com
 
 gcloud projects add-iam-policy-binding $PROJECT_ID \
@@ -165,8 +159,6 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/cloudkms.cryptoKeyEncrypterDecrypter \
   --member "serviceAccount:$CLUSTER_NAME-vt@$PROJECT_ID.iam.gserviceaccount.com"
-
-
 ```
 
 ## verify
@@ -180,7 +172,7 @@ kubectl run --rm -it \
   --generator=run-pod/v1 \
   --image google/cloud-sdk:slim \
   --serviceaccount boot-sa \
-  --namespace jx \
+  --namespace $NAMESPACE \
   workload-identity-test
 ```
 
@@ -194,9 +186,8 @@ CTR-D to exit the pod and it is garbage collected so you don't need to clean it 
 
 ## add the installer to your clusters
 ```
-jx ns jx
-```
-```bash
+jx ns $NAMESPACE
+
 helm install jx-boot \
   --set boot.clusterName=$CLUSTER_NAME \
   --set boot.zone=$ZONE \
@@ -211,7 +202,7 @@ helm install jx-boot \
   .
 ```
 
-follow the logs of the `jx boot` kubernetes job, note is may take a minute for the pod of the job to start as the node needs to download the image and start it.
+follow the logs of the `jx boot` kubernetes job, note is may take a minute or twp for the pod of the job to start as the node needs to download the image and start it.
 
 ```bash
 kubectl logs job/jx-boot -f
@@ -231,7 +222,7 @@ kubectl delete sa tekton-sa
 kubectl delete sa storage-sa
 kubectl delete sa vault-sa
 kubectl delete sa velero-sa
-kubectl delete ns jx
+kubectl delete ns $NAMESPACE
 kubectl delete ClusterRoleBinding jx-boot
 ```
 

@@ -2,17 +2,17 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: jx
+  name: {namespace}
   labels:
-    name: jx
+    name: {namespace}
     env: dev
-    team: jx
+    team: {namespace}
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: externaldns-sa
-  namespace: jx
+  namespace: {namespace}
   annotations:
     iam.gke.io/gcp-service-account: {cluster_name}-ex@{project_id}.iam.gserviceaccount.com
 ---
@@ -20,7 +20,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: boot-sa
-  namespace: jx
+  namespace: {namespace}
   annotations:
     iam.gke.io/gcp-service-account: {cluster_name}-jb@{project_id}.iam.gserviceaccount.com
 ---
@@ -28,7 +28,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: kaniko-sa
-  namespace: jx
+  namespace: {namespace}
   annotations:
     iam.gke.io/gcp-service-account: {cluster_name}-ko@{project_id}.iam.gserviceaccount.com
 ---
@@ -36,7 +36,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: storage-sa
-  namespace: jx
+  namespace: {namespace}
   annotations:
     iam.gke.io/gcp-service-account: {cluster_name}-st@{project_id}.iam.gserviceaccount.com
 ---
@@ -44,7 +44,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: tekton-sa
-  namespace: jx
+  namespace: {namespace}
   annotations:
     iam.gke.io/gcp-service-account: {cluster_name}-tk@{project_id}.iam.gserviceaccount.com
 ---
@@ -52,7 +52,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: vault-sa
-  namespace: jx
+  namespace: {namespace}
   annotations:
     iam.gke.io/gcp-service-account: {cluster_name}-vt@{project_id}.iam.gserviceaccount.com
 ---
@@ -60,7 +60,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: velero-sa
-  namespace: jx
+  namespace: {namespace}
   annotations:
     iam.gke.io/gcp-service-account: {cluster_name}-vo@{project_id}.iam.gserviceaccount.com
 ---
@@ -75,4 +75,4 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: boot-sa
-  namespace: jx
+  namespace: {namespace}
