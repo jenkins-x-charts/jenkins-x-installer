@@ -1,16 +1,30 @@
-# installer
+# Installer
 
-NOTE: this installer is experimental so don't install into an existing Kubernetes cluster and if possible you should use a new GCP project so that any IAM, Bucket or Networking resources do not affect existing workloads.
+These installer docs helps you create a new cluster on Google Cloud Platform, prepare it and deploy an installer that will provision your cluster with Jenkins X, using Helm 3, GCP Workload Identity and a much easier way to add apps to the intial install.
 
-## prereqs
+__NOTE__: This installer is experimental so don't install into an existing Kubernetes cluster and if possible you should use a new GCP project so that any IAM, Bucket or Networking resources do not affect existing workloads.
+
+
+## Prerequisits
+
+This is experimental so for now this installer is aimed at:
+- Google Cloud Platform Kubernetes (GKE)
+- GitHub for GitOps environment repositories and creating new quickstarts or custom applications
 
 Set some local environment varialbles
+- `NAMESPACE` is the Kubernetes namespace the base Jenkins X installation will installed into, note optionl apps installed during the boot process can be installed into different namespaces
+
+- `CLUSTER_NAME` provide a unique cluster name for the GCP project
+- `PROJECT_ID` the GCP project the cluster and other cloud resources will be created into
+- `ZONE` the GCP zone to create the new cluster
+- `ENV_GIT_OWNER` the GitHub organisation the GitOps environments are created, these are the repos that contain the meta data for each Jenkins X environment.  _Note_ the pipline user env vars below must have permission to create repos in the GitHub organisation
+
 ```bash
 export NAMESPACE=jx
 export CLUSTER_NAME=
 export PROJECT_ID=
-export ENV_GIT_OWNER=
 export ZONE=
+export ENV_GIT_OWNER=
 
 export SECRET_ADMINUSER_USERNAME=
 export SECRET_ADMINUSER_PASSWORD=
@@ -19,7 +33,6 @@ export SECRET_PIPELINEUSER_USERNAME=
 export SECRET_PIPELINEUSER_EMAIL=
 export SECRET_PIPELINEUSER_TOKEN=
 ```
-
 
 ```bash
 gcloud beta container clusters create $CLUSTER_NAME \
@@ -161,7 +174,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
   --member "serviceAccount:$CLUSTER_NAME-vt@$PROJECT_ID.iam.gserviceaccount.com"
 ```
 
-## verify
+## Verify workload identity
 
 it can a little while for permissions to propogate when using workload identity so it's a good idea to validate auth is working before continuing to the next step.
 
@@ -184,7 +197,7 @@ gcloud auth list
 
 CTR-D to exit the pod and it is garbage collected so you don't need to clean it up
 
-## add the installer to your clusters
+## Add the installer to your cluster
 ```
 jx ns $NAMESPACE
 
