@@ -1,9 +1,11 @@
 boot:
   clusterName:
-  bootGitURL: https://github.com/jenkins-x-labs/boot-helmfile-poc.git
+  bootGitURL: https://github.com/jenkins-x/jenkins-x-boot-helmfile-config.git
   bootGitRef: master
+  environmentGitOwner:
   userEmail:
   projectID:
+  provider: gke
   tls:
     production: no
   zone:

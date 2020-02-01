@@ -1,5 +1,6 @@
 # installer
 
+NOTE: this installer is experimental so don't install into an existing Kubernetes cluster and if possible you should use a new GCP project so that any IAM, Bucket or Networking resources do not affect existing workloads.
 
 ## prereqs
 
@@ -7,6 +8,7 @@ Set some local environment varialbles
 ```bash
 export CLUSTER_NAME=
 export PROJECT_ID=
+export ENV_GIT_OWNER=
 export ZONE=
 export SECRET_ADMINUSER_USERNAME=
 export SECRET_ADMINUSER_PASSWORD=
@@ -188,6 +190,8 @@ use gcloud to verify you can auth, it make take a few tries over a few minutes
 gcloud auth list
 ```
 
+CTR-D to exit the pod and it is garbage collected so you don't need to clean it up
+
 ## add the installer to your clusters
 ```
 jx ns jx
@@ -197,6 +201,7 @@ helm install jx-boot \
   --set boot.clusterName=$CLUSTER_NAME \
   --set boot.zone=$ZONE \
   --set boot.projectID=$PROJECT_ID \
+  --set boot.environmentGitOwner=$ENV_GIT_OWNER \
   --set secrets.adminUser.username=$SECRET_ADMINUSER_USERNAME \
   --set secrets.adminUser.password=$SECRET_ADMINUSER_PASSWORD \
   --set secrets.hmacToken=$SECRET_HMACTOKEN \
@@ -204,6 +209,12 @@ helm install jx-boot \
   --set secrets.pipelineUser.email=$SECRET_PIPELINEUSER_EMAIL \
   --set secrets.pipelineUser.token=$SECRET_PIPELINEUSER_TOKEN \
   .
+```
+
+follow the logs of the `jx boot` kubernetes job, note is may take a minute for the pod of the job to start as the node needs to download the image and start it.
+
+```bash
+kubectl logs job/jx-boot -f
 ```
 
 # cleanup

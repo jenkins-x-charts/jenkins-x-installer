@@ -54,7 +54,8 @@ spec:
         - {{ .Values.boot.versionsGitURL | quote }}
         - --versions-ref
         - {{ .Values.boot.versionsGitRef | quote }}
-        - --verbose
+        - --helmfile
+        # - --verbose
         command:
         - jx
         env:
@@ -71,10 +72,15 @@ spec:
         - name: JX_LOG_FORMAT
           value: "json"
 
+        - name: JX_HELM3
+          value: "true"
+        - name: JX_HELMFILE
+          value: "true"
+
         - name: JX_REQUIREMENT_TERRAFORM
           value: "true"
-        # - name: JX_REQUIREMENT_ENV_GIT_OWNER
-        #   value: ${git_owner}
+        - name: JX_REQUIREMENT_ENV_GIT_OWNER
+          value: {{ .Values.boot.environmentGitOwner }}
         - name: JX_REQUIREMENT_KANIKO_SA_NAME
           value: kaniko-sa
         - name: JX_REQUIREMENT_VAULT_NAME
@@ -109,9 +115,10 @@ spec:
         #   value: "false"
         # - name: JX_REQUIREMENT_STORAGE_REPOSITORY_ENABLED
         #   value: "false"
-
+        - name: JX_REQUIREMENT_PROVIDER
+          value:  {{ .Values.boot.provider | quote }}
         - name: JX_REQUIREMENT_PROJECT
-          value: ${project_id}
+          value:  {{ .Values.boot.projectID | quote }}
         - name: JX_REQUIREMENT_CLUSTER_NAME
           value: {{ .Values.boot.clusterName | quote }}
         - name: JX_REQUIREMENT_ZONE
@@ -120,7 +127,10 @@ spec:
           value: {{ .Values.boot.userEmail | quote }}
         - name: JX_SECRETS_DIR
           value: /secrets/secrets.yaml
-        image: jenkinsxio/jenkins-x-installer:0.0.2
+        - name: JX_SECRETS_YAML
+          value: /secrets/secrets.yaml
+        image: jenkinsxio/jenkins-x-installer:0.0.4
+        #image: jenkinsxio/jenkins-x-installer:0.0.2
         imagePullPolicy: IfNotPresent
         name: boot
         volumeMounts:
