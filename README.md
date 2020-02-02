@@ -102,10 +102,6 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/storage.admin \
   --member "serviceAccount:$CLUSTER_NAME-jb@$PROJECT_ID.iam.gserviceaccount.com"
 
-gcloud projects add-iam-policy-binding $PROJECT_ID \
-  --role roles/storage.admin \
-  --member "serviceAccount:jr3-jb@jx-development.iam.gserviceaccount.com"
-
 # kaniko
 gcloud iam service-accounts add-iam-policy-binding \
   --role roles/iam.workloadIdentityUser \
@@ -213,6 +209,7 @@ CTR-D to exit the pod and it is garbage collected so you don't need to clean it 
 jx ns $NAMESPACE
 
 helm install jx-boot \
+  --set boot.namespace=$NAMESPACE \
   --set boot.clusterName=$CLUSTER_NAME \
   --set boot.zone=$ZONE \
   --set boot.projectID=$PROJECT_ID \

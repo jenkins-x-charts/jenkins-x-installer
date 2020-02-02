@@ -4,7 +4,7 @@ metadata:
   labels:
     release: jenkins-x
   name: jx-boot
-  namespace: jx
+  namespace: {{ .Values.boot.namespace }}
 spec:
   backoffLimit: 5
   completions: 1
@@ -55,7 +55,6 @@ spec:
         - --versions-ref
         - {{ .Values.boot.versionsGitRef | quote }}
         - --helmfile
-        # - --verbose
         command:
         - jx
         env:
@@ -129,8 +128,7 @@ spec:
           value: /secrets/secrets.yaml
         - name: JX_SECRETS_YAML
           value: /secrets/secrets.yaml
-        image: jenkinsxio/jenkins-x-installer:0.0.4
-        #image: jenkinsxio/jenkins-x-installer:0.0.2
+        image: jenkinsxio/jenkins-x-installer:0.0.6
         imagePullPolicy: IfNotPresent
         name: boot
         volumeMounts:
