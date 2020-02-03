@@ -14,11 +14,15 @@ boot:
   versionsGitRef: master
 
 secrets:
-  adminUser:
-    username:
-    password:
-  hmacToken:
-  pipelineUser:
-    username:
-    email:
-    token:
+  gsm:
+    enabled: false
+  env:
+    enabled: false
+    adminUser:
+      username:
+      password:
+    hmacToken:
+    pipelineUser:
+      username:
+      email:
+      token:
