@@ -15,6 +15,7 @@ spec:
         release: jenkins-x
     spec:
       initContainers:
+      {{- if .Values.secrets.env.enabled }}
       - name: init-secrets
         image: jenkinsxio/envsubst:0.0.1
         args:
@@ -38,11 +39,20 @@ spec:
           subPath: secrets.yaml
         - name: workdir
           mountPath: "/processed"
+      {{- end }}
+      {{- if .Values.secrets.gsm.enabled }}
+      - name: init-secrets
+        image: jenkinsxio/jenkins-x-installer:0.0.7
+        command:
+        - /bin/sh
+        args:
+        - -c
+        - "gcloud beta secrets versions access latest --secret=boot-secret > /processed/secrets.yaml" # pragma: allowlist secret
+        volumeMounts:
+        - name: workdir
+          mountPath: "/processed"
+      {{- end }}
       containers:
-      # - command:
-      #   - sleep
-      #   args:
-      #   - infinity
       - args:
         - boot
         - -b
@@ -75,6 +85,10 @@ spec:
           value: "true"
         - name: JX_HELMFILE
           value: "true"
+        - name: JX_SECRETS_DIR
+          value: /secrets/secrets.yaml
+        - name: JX_SECRETS_YAML
+          value: /secrets/secrets.yaml
 
         - name: JX_REQUIREMENT_TERRAFORM
           value: "true"
@@ -104,6 +118,14 @@ spec:
           value: "true"
         - name: JX_REQUIREMENT_STORAGE_BACKUP_ENABLED
           value: "true"
+        - name: JX_REQUIREMENT_PROVIDER
+          value:  {{ .Values.boot.provider | quote }}
+        - name: JX_REQUIREMENT_PROJECT
+          value:  {{ .Values.boot.projectID | quote }}
+        - name: JX_REQUIREMENT_CLUSTER_NAME
+          value: {{ .Values.boot.clusterName | quote }}
+        - name: JX_REQUIREMENT_ZONE
+          value: {{ .Values.boot.zone | quote }}
         # - name: JX_REQUIREMENT_STORAGE_BACKUP_URL
         #   value: ${storage_backup_url}
         # - name: JX_REQUIREMENT_STORAGE_LOGS_ENABLED
@@ -114,21 +136,9 @@ spec:
         #   value: "false"
         # - name: JX_REQUIREMENT_STORAGE_REPOSITORY_ENABLED
         #   value: "false"
-        - name: JX_REQUIREMENT_PROVIDER
-          value:  {{ .Values.boot.provider | quote }}
-        - name: JX_REQUIREMENT_PROJECT
-          value:  {{ .Values.boot.projectID | quote }}
-        - name: JX_REQUIREMENT_CLUSTER_NAME
-          value: {{ .Values.boot.clusterName | quote }}
-        - name: JX_REQUIREMENT_ZONE
-          value: {{ .Values.boot.zone | quote }}
         - name: USER_EMAIL
           value: {{ .Values.boot.userEmail | quote }}
-        - name: JX_SECRETS_DIR
-          value: /secrets/secrets.yaml
-        - name: JX_SECRETS_YAML
-          value: /secrets/secrets.yaml
-        image: jenkinsxio/jenkins-x-installer:0.0.6
+        image: jenkinsxio/jenkins-x-installer:0.0.7
         imagePullPolicy: IfNotPresent
         name: boot
         volumeMounts:

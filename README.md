@@ -25,13 +25,6 @@ export CLUSTER_NAME=
 export PROJECT_ID=
 export ZONE=
 export ENV_GIT_OWNER=
-
-export SECRET_ADMINUSER_USERNAME=
-export SECRET_ADMINUSER_PASSWORD=
-export SECRET_HMACTOKEN=
-export SECRET_PIPELINEUSER_USERNAME=
-export SECRET_PIPELINEUSER_EMAIL=
-export SECRET_PIPELINEUSER_TOKEN=
 ```
 
 # Create a new cluster on GCP with Googles workload identity enabled
@@ -179,6 +172,9 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/cloudkms.cryptoKeyEncrypterDecrypter \
   --member "serviceAccount:$CLUSTER_NAME-vt@$PROJECT_ID.iam.gserviceaccount.com"
+
+# change to the new jx namespace
+jx ns $NAMESPACE
 ```
 
 ## Verify workload identity
@@ -204,9 +200,18 @@ gcloud auth list
 
 CTR-D to exit the pod and it is garbage collected so you don't need to clean it up
 
-## Add the installer to your cluster
-```
-jx ns $NAMESPACE
+## Secrets
+We now have a few options of injecting the required secrets into the boot installer.
+
+### Environment variables
+
+```bash
+export SECRET_ADMINUSER_USERNAME=
+export SECRET_ADMINUSER_PASSWORD=
+export SECRET_HMACTOKEN=
+export SECRET_PIPELINEUSER_USERNAME=
+export SECRET_PIPELINEUSER_EMAIL=
+export SECRET_PIPELINEUSER_TOKEN=
 
 helm install jx-boot \
   --set boot.namespace=$NAMESPACE \
@@ -214,22 +219,55 @@ helm install jx-boot \
   --set boot.zone=$ZONE \
   --set boot.projectID=$PROJECT_ID \
   --set boot.environmentGitOwner=$ENV_GIT_OWNER \
-  --set secrets.adminUser.username=$SECRET_ADMINUSER_USERNAME \
-  --set secrets.adminUser.password=$SECRET_ADMINUSER_PASSWORD \
-  --set secrets.hmacToken=$SECRET_HMACTOKEN \
-  --set secrets.pipelineUser.username=$SECRET_PIPELINEUSER_USERNAME \
-  --set secrets.pipelineUser.email=$SECRET_PIPELINEUSER_EMAIL \
-  --set secrets.pipelineUser.token=$SECRET_PIPELINEUSER_TOKEN \
+  --set secrets.env.enabled=true \
+  --set secrets.env.adminUser.username=$SECRET_ADMINUSER_USERNAME \
+  --set secrets.env.adminUser.password=$SECRET_ADMINUSER_PASSWORD \
+  --set secrets.env.hmacToken=$SECRET_HMACTOKEN \
+  --set secrets.env.pipelineUser.username=$SECRET_PIPELINEUSER_USERNAME \
+  --set secrets.env.pipelineUser.email=$SECRET_PIPELINEUSER_EMAIL \
+  --set secrets.env.pipelineUser.token=$SECRET_PIPELINEUSER_TOKEN \
   .
 ```
 
-follow the logs of the `jx boot` kubernetes job, note is may take a minute or twp for the pod of the job to start as the node needs to download the image and start it.
+### Google Secrets manager
+
+This uses the new [Beta secrets manager](https://cloud.google.com/secret-manager)
+
+You may need to upgrade your gcloud and it's components
+```bash
+gcloud components update
+```
+
+```bash
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --role roles/secretmanager.secretAccessor \
+  --member "serviceAccount:$CLUSTER_NAME-jb@$PROJECT_ID.iam.gserviceaccount.com"
+```
+
+edit the `google-secrets-manager/secrets.yaml` file in this repo, add your secret values and run
+
+```bash
+gcloud beta secrets create boot-secret --replication-policy automatic --data-file ./google-secrets-manager/secrets.yaml
+
+helm install jx-boot \
+  --set boot.namespace=$NAMESPACE \
+  --set boot.clusterName=$CLUSTER_NAME \
+  --set boot.zone=$ZONE \
+  --set boot.projectID=$PROJECT_ID \
+  --set boot.environmentGitOwner=$ENV_GIT_OWNER \
+  --set secrets.gsm.enable=true \
+  .
+```
+
+## Logs
+
+Follow the logs of the `jx boot` kubernetes job, note is may take a minute or twp for the pod of the job to start as the node needs to download the image and start it.
 
 ```bash
 kubectl logs job/jx-boot -f
 ```
 
-# cleanup
+# Cleanup
 _Note this cleans up the resources associated with the installer and not the Jenkins X installation itself, see website docs for that_
 ```
 helm uninstall jx-boot
