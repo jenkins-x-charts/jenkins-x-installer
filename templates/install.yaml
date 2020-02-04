@@ -47,7 +47,7 @@ spec:
         - /bin/sh
         args:
         - -c
-        - "gcloud beta secrets versions access latest --secret=boot-secret > /processed/secrets.yaml" # pragma: allowlist secret
+        - "gcloud beta secrets versions access latest --secret={{ .Values.boot.clusterName }}-boot-secret > /processed/secrets.yaml" # pragma: allowlist secret
         volumeMounts:
         - name: workdir
           mountPath: "/processed"
@@ -149,6 +149,8 @@ spec:
       volumes:
       - name: workdir
         emptyDir: {}
+      {{- if .Values.secrets.env.enabled }}
       - name: config-volume
         configMap:
           name: boot-secrets-template
+      {{- end }}

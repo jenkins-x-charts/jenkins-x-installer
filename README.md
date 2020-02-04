@@ -218,10 +218,13 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
   --member "serviceAccount:$CLUSTER_NAME-jb@$PROJECT_ID.iam.gserviceaccount.com"
 ```
 
-edit the `google-secrets-manager/secrets.yaml` file in this repo, add your secret values and run
+```
+cp google-secrets-manager/secrets-template.yaml > google-secrets-manager/secrets.yaml
+```
+edit the `google-secrets-manager/secrets.yaml` file and add your secret values, then run
 
 ```bash
-gcloud beta secrets create boot-secret --replication-policy automatic --data-file ./google-secrets-manager/secrets.yaml
+gcloud beta secrets create $CLUSTER_NAME-boot-secret --replication-policy automatic --data-file ./google-secrets-manager/secrets.yaml
 
 helm install jx-boot \
   --set boot.namespace=$NAMESPACE \
