@@ -1,4 +1,4 @@
-# Installer
+# Jenkins X Experimental Installer
 
 These installer docs helps you create a new cluster on Google Cloud Platform, prepare it and deploy an installer that will provision your cluster with Jenkins X, using Helm 3, GCP Workload Identity and a much easier way to add apps to the intial install.
 
@@ -203,33 +203,7 @@ CTR-D to exit the pod and it is garbage collected so you don't need to clean it 
 ## Secrets
 We now have a few options of injecting the required secrets into the boot installer.
 
-### Environment variables
-
-```bash
-export SECRET_ADMINUSER_USERNAME=
-export SECRET_ADMINUSER_PASSWORD=
-export SECRET_HMACTOKEN=
-export SECRET_PIPELINEUSER_USERNAME=
-export SECRET_PIPELINEUSER_EMAIL=
-export SECRET_PIPELINEUSER_TOKEN=
-
-helm install jx-boot \
-  --set boot.namespace=$NAMESPACE \
-  --set boot.clusterName=$CLUSTER_NAME \
-  --set boot.zone=$ZONE \
-  --set boot.projectID=$PROJECT_ID \
-  --set boot.environmentGitOwner=$ENV_GIT_OWNER \
-  --set secrets.env.enabled=true \
-  --set secrets.env.adminUser.username=$SECRET_ADMINUSER_USERNAME \
-  --set secrets.env.adminUser.password=$SECRET_ADMINUSER_PASSWORD \
-  --set secrets.env.hmacToken=$SECRET_HMACTOKEN \
-  --set secrets.env.pipelineUser.username=$SECRET_PIPELINEUSER_USERNAME \
-  --set secrets.env.pipelineUser.email=$SECRET_PIPELINEUSER_EMAIL \
-  --set secrets.env.pipelineUser.token=$SECRET_PIPELINEUSER_TOKEN \
-  .
-```
-
-### Google Secrets manager
+### Google Secrets manager - preferred approach
 
 This uses the new [Beta secrets manager](https://cloud.google.com/secret-manager)
 
@@ -255,7 +229,33 @@ helm install jx-boot \
   --set boot.zone=$ZONE \
   --set boot.projectID=$PROJECT_ID \
   --set boot.environmentGitOwner=$ENV_GIT_OWNER \
-  --set secrets.gsm.enable=true \
+  --set secrets.gsm.enabled=true \
+  .
+```
+
+### Environment variables
+
+```bash
+export SECRET_ADMINUSER_USERNAME=
+export SECRET_ADMINUSER_PASSWORD=
+export SECRET_HMACTOKEN=
+export SECRET_PIPELINEUSER_USERNAME=
+export SECRET_PIPELINEUSER_EMAIL=
+export SECRET_PIPELINEUSER_TOKEN=
+
+helm install jx-boot \
+  --set boot.namespace=$NAMESPACE \
+  --set boot.clusterName=$CLUSTER_NAME \
+  --set boot.zone=$ZONE \
+  --set boot.projectID=$PROJECT_ID \
+  --set boot.environmentGitOwner=$ENV_GIT_OWNER \
+  --set secrets.env.enabled=true \
+  --set secrets.env.adminUser.username=$SECRET_ADMINUSER_USERNAME \
+  --set secrets.env.adminUser.password=$SECRET_ADMINUSER_PASSWORD \
+  --set secrets.env.hmacToken=$SECRET_HMACTOKEN \
+  --set secrets.env.pipelineUser.username=$SECRET_PIPELINEUSER_USERNAME \
+  --set secrets.env.pipelineUser.email=$SECRET_PIPELINEUSER_EMAIL \
+  --set secrets.env.pipelineUser.token=$SECRET_PIPELINEUSER_TOKEN \
   .
 ```
 
