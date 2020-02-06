@@ -42,12 +42,12 @@ spec:
       {{- end }}
       {{- if .Values.secrets.gsm.enabled }}
       - name: init-secrets
-        image: jenkinsxio/jenkins-x-installer:0.0.7
+        image: jenkinsxio/jenkins-x-installer:0.0.15
         command:
         - /bin/sh
         args:
         - -c
-        - "gcloud beta secrets versions access latest --secret={{ .Values.boot.clusterName }}-boot-secret > /processed/secrets.yaml" # pragma: allowlist secret
+        - "gcloud beta secrets versions access latest --secret={{ .Values.boot.clusterName }}-boot-secret > /processed/secrets.yaml -q" # pragma: allowlist secret
         volumeMounts:
         - name: workdir
           mountPath: "/processed"
@@ -67,6 +67,10 @@ spec:
         - --helmfile
         command:
         - jx
+      # - command:
+      #   - sleep
+      #   args:
+      #   - infinity
         env:
         - name: GIT_COMMITTER_EMAIL
           value: jenkins-x@googlegroups.com
@@ -138,7 +142,7 @@ spec:
         #   value: "false"
         - name: USER_EMAIL
           value: {{ .Values.boot.userEmail | quote }}
-        image: jenkinsxio/jenkins-x-installer:0.0.7
+        image: jenkinsxio/jenkins-x-installer:0.0.15
         imagePullPolicy: IfNotPresent
         name: boot
         volumeMounts:
