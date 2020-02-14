@@ -219,7 +219,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 ```
 
 ```
-cp google-secrets-manager/secrets-template.yaml > google-secrets-manager/secrets.yaml
+cp google-secrets-manager/secrets-template.yaml  google-secrets-manager/secrets.yaml
 ```
 edit the `google-secrets-manager/secrets.yaml` file and add your secret values, then run
 

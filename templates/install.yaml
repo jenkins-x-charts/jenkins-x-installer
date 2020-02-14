@@ -42,7 +42,7 @@ spec:
       {{- end }}
       {{- if .Values.secrets.gsm.enabled }}
       - name: init-secrets
-        image: jenkinsxio/jenkins-x-installer:0.0.15
+        image: jenkinsxio/jenkins-x-installer:0.0.20
         command:
         - /bin/sh
         args:
@@ -52,9 +52,11 @@ spec:
         - name: workdir
           mountPath: "/processed"
       {{- end }}
+
       containers:
       - args:
-        - boot
+        - experiments
+        - helmboot
         - -b
         - --git-url
         - {{ .Values.boot.bootGitURL | quote }}
@@ -64,7 +66,6 @@ spec:
         - {{ .Values.boot.versionsGitURL | quote }}
         - --versions-ref
         - {{ .Values.boot.versionsGitRef | quote }}
-        - --helmfile
         command:
         - jx
       # - command:
@@ -100,16 +101,16 @@ spec:
           value: {{ .Values.boot.environmentGitOwner }}
         - name: JX_REQUIREMENT_KANIKO_SA_NAME
           value: kaniko-sa
-        - name: JX_REQUIREMENT_VAULT_NAME
-          value: {{ .Values.boot.clusterName }}
-        - name: JX_REQUIREMENT_VAULT_SA_NAME
-          value: vault-sa
-        - name: JX_REQUIREMENT_VAULT_KEYRING_NAME
-          value: {{ .Values.boot.clusterName }}-keyring
-        - name: JX_REQUIREMENT_VAULT_KEY_NAME
-          value: {{ .Values.boot.clusterName }}-crypto-key
-        - name: JX_REQUIREMENT_VAULT_BUCKET_NAME
-          value: {{ .Values.boot.clusterName }}-vault
+        # - name: JX_REQUIREMENT_VAULT_NAME
+        #   value: {{ .Values.boot.clusterName }}
+        # - name: JX_REQUIREMENT_VAULT_SA_NAME
+        #   value: vault-sa
+        # - name: JX_REQUIREMENT_VAULT_KEYRING_NAME
+        #   value: {{ .Values.boot.clusterName }}-keyring
+        # - name: JX_REQUIREMENT_VAULT_KEY_NAME
+        #   value: {{ .Values.boot.clusterName }}-crypto-key
+        # - name: JX_REQUIREMENT_VAULT_BUCKET_NAME
+        #   value: {{ .Values.boot.clusterName }}-vault
         - name: JX_REQUIREMENT_VELERO_SA_NAME
           value: velero-sa
         - name: JX_REQUIREMENT_EXTERNALDNS_SA_NAME
@@ -142,7 +143,9 @@ spec:
         #   value: "false"
         - name: USER_EMAIL
           value: {{ .Values.boot.userEmail | quote }}
-        image: jenkinsxio/jenkins-x-installer:0.0.15
+        - name: JX_HOME
+          value: /secrets
+        image: jenkinsxio/jenkins-x-installer:0.0.20
         imagePullPolicy: IfNotPresent
         name: boot
         volumeMounts:
