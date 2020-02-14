@@ -42,7 +42,7 @@ spec:
       {{- end }}
       {{- if .Values.secrets.gsm.enabled }}
       - name: init-secrets
-        image: jenkinsxio/jenkins-x-installer:0.0.20
+        image: jenkinsxio/jenkins-x-installer:0.0.24
         command:
         - /bin/sh
         args:
@@ -57,6 +57,7 @@ spec:
       - args:
         - experiments
         - helmboot
+        - run
         - -b
         - --git-url
         - {{ .Values.boot.bootGitURL | quote }}
@@ -94,7 +95,8 @@ spec:
           value: /secrets/secrets.yaml
         - name: JX_SECRETS_YAML
           value: /secrets/secrets.yaml
-
+        - name: JX_INTERPRET_PIPELINE
+          value: "true"
         - name: JX_REQUIREMENT_TERRAFORM
           value: "true"
         - name: JX_REQUIREMENT_ENV_GIT_OWNER
@@ -145,7 +147,7 @@ spec:
           value: {{ .Values.boot.userEmail | quote }}
         - name: JX_HOME
           value: /secrets
-        image: jenkinsxio/jenkins-x-installer:0.0.20
+        image: jenkinsxio/jenkins-x-installer:0.0.24
         imagePullPolicy: IfNotPresent
         name: boot
         volumeMounts:
