@@ -1,0 +1,41 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: validateko-dockerfile
+data:
+  Dockerfile: |-
+    FROM centos:7
+    RUN echo foo
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kaniko-jx
+spec:
+  containers:
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:debug-9912ccbf8d22bbafbf971124600fbb0b13b9cbd6
+    args: ["--dockerfile=/workspace/Dockerfile",
+            "--context=dir://workspace",
+            "--destination=gcr.io/jx-development/foo:bar"]
+    volumeMounts:
+      - mountPath: /kaniko-secret
+        name: kaniko-secret
+        readOnly: true
+      - name: dockerfile
+        mountPath: /workspace
+    env:
+      - name: GOOGLE_APPLICATION_CREDENTIALS
+        value: /kaniko-secret/secret.json
+  restartPolicy: Never
+  volumes:
+    - name: kaniko-secret
+      secret:
+        defaultMode: 420
+        items:
+        - key: kaniko-secret
+          path: secret.json
+        secretName: kaniko-secret
+    - name: dockerfile
+      configMap:
+        name: validateko-dockerfile

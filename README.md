@@ -232,6 +232,8 @@ helm install jx-boot \
   --set boot.zone=$ZONE \
   --set boot.projectID=$PROJECT_ID \
   --set boot.environmentGitOwner=$ENV_GIT_OWNER \
+  --set boot.publicEnvironmentGit=true \
+  --set boot.publicGit=true \
   --set secrets.gsm.enabled=true \
   .
 ```
