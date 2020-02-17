@@ -42,7 +42,7 @@ spec:
       {{- end }}
       {{- if .Values.secrets.gsm.enabled }}
       - name: init-secrets
-        image: jenkinsxio/jenkins-x-installer:0.0.24
+        image: jenkinsxio/jenkins-x-installer:0.0.27
         command:
         - /bin/sh
         args:
@@ -135,7 +135,7 @@ spec:
           value: {{ .Values.boot.userEmail | quote }}
         - name: JX_HOME
           value: /secrets
-        image: jenkinsxio/jenkins-x-installer:0.0.24
+        image: jenkinsxio/jenkins-x-installer:0.0.27
         imagePullPolicy: IfNotPresent
         name: boot
         volumeMounts:
