@@ -203,7 +203,7 @@ CTR-D to exit the pod and it is garbage collected so you don't need to clean it 
 ## Secrets
 We now have a few options of injecting the required secrets into the boot installer.
 
-### Google Secrets manager - preferred approach
+### Google Secrets manager install - preferred approach
 
 This uses the new [Beta secrets manager](https://cloud.google.com/secret-manager)
 
@@ -238,7 +238,13 @@ helm install jx-boot \
   .
 ```
 
-### Environment variables
+Follow the logs of the `jx boot` kubernetes job, note is may take a minute or twp for the pod of the job to start as the node needs to download the image and start it.
+
+```bash
+kubectl logs job/jx-boot -f
+```
+
+### Environment variables install
 
 ```bash
 export SECRET_ADMINUSER_USERNAME=
@@ -264,12 +270,18 @@ helm install jx-boot \
   .
 ```
 
-## Logs
-
 Follow the logs of the `jx boot` kubernetes job, note is may take a minute or twp for the pod of the job to start as the node needs to download the image and start it.
 
 ```bash
 kubectl logs job/jx-boot -f
+```
+
+# Next
+
+Now you can create your own application, run the following and choose the golang-http quickstart:
+
+```
+jx create quickstart
 ```
 
 # Cleanup
