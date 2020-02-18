@@ -16,7 +16,7 @@ Set some local environment varialbles
 
 - `CLUSTER_NAME` provide a unique cluster name for the GCP project
 - `PROJECT_ID` the GCP project the cluster and other cloud resources will be created into
-- `ZONE` the GCP zone to create the new cluster
+- `ZONE` the GCP zone to create the new cluster, e.g. `europe-west1-b`
 - `ENV_GIT_OWNER` the GitHub organisation the GitOps environments are created, these are the repos that contain the meta data for each Jenkins X environment.  _Note_ the pipline user env vars below must have permission to create repos in the GitHub organisation
 
 ```bash
