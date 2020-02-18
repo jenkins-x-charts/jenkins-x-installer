@@ -21,10 +21,10 @@ Set some local environment varialbles
 
 ```bash
 export NAMESPACE=jx
-export CLUSTER_NAME=
-export PROJECT_ID=
-export ZONE=
-export ENV_GIT_OWNER=
+export CLUSTER_NAME=test-cluster-foo
+export PROJECT_ID=jx-development
+export ZONE=europe-west1-b
+export ENV_GIT_OWNER=<your git id>
 ```
 
 # Create a new cluster on GCP with Googles workload identity enabled
@@ -36,7 +36,7 @@ gcloud beta container clusters create $CLUSTER_NAME \
  --max-nodes=3 \
  --project=$PROJECT_ID \
  --identity-namespace=$PROJECT_ID.svc.id.goog \
- --region=europe-west1-b \
+ --region=$ZONE \
  --machine-type=n1-standard-4 \
  --num-nodes=2
 ```
