@@ -224,7 +224,9 @@ cp google-secrets-manager/secrets-template.yaml  google-secrets-manager/secrets.
 edit the `google-secrets-manager/secrets.yaml` file and add your secret values, then run
 
 ```bash
-gcloud beta secrets create $CLUSTER_NAME-boot-secret --replication-policy automatic --data-file ./google-secrets-manager/secrets.yaml
+gcloud beta secrets create $CLUSTER_NAME-boot-secret --replication-policy automatic
+gcloud beta secrets versions add $CLUSTER_NAME-boot-secret --data-file ./google-secrets-manager/secrets.yaml
+
 
 helm install jx-boot \
   --set boot.namespace=$NAMESPACE \
@@ -238,7 +240,13 @@ helm install jx-boot \
   .
 ```
 
-Follow the logs of the `jx boot` kubernetes job, note is may take a minute or twp for the pod of the job to start as the node needs to download the image and start it.
+_Note secrets in Google Secrets Manager are immutable and versioned.  To update a secret add a new version, for example:_
+```
+➜ gcloud beta secrets versions add $CLUSTER_NAME-boot-secret --data-file ./google-secrets-manager/secrets.yaml
+Created version [2] of the secret [jr20-boot-secret].
+```
+
+Now follow the logs of the `jx boot` kubernetes job, note is may take a minute or twp for the pod of the job to start as the node needs to download the image and start it.
 
 ```bash
 kubectl logs job/jx-boot -f
