@@ -29,6 +29,23 @@ export ENV_GIT_OWNER=<your git id>
 
 # Create a new cluster on GCP with Googles workload identity enabled
 
+We have a simple way with a single bash script or a harder way where you copy/paste multiple commands:
+
+## Simple way
+
+To use the simple bash scripts to run the gcloud commands then do:
+
+
+```bash
+git clone https://github.com/jenkins-x-charts/jenkins-x-installer
+cd jenkins-x-installer 
+./create_cluster.sh
+```
+
+## Harder way
+
+To create the cluster:
+
 ```bash
 gcloud beta container clusters create $CLUSTER_NAME \
  --enable-autoscaling \
@@ -41,7 +58,7 @@ gcloud beta container clusters create $CLUSTER_NAME \
  --num-nodes=2
 ```
 
-# Provision
+### Provision the cloud resources
 
 As this is still experimental there's no official helm chart yet so you will need to clone this repo to install
 
