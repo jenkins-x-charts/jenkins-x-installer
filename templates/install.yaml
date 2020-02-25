@@ -40,6 +40,18 @@ spec:
         - name: workdir
           mountPath: "/processed"
       {{- end }}
+      {{- if .Values.secrets.helmboot.enabled }}
+      - name: init-secrets
+        image: jenkinsxio/jenkins-x-installer:0.0.31
+        command:
+        - /bin/sh
+        args:
+        - -c
+        - "jxl helmboot secrets export -f /processed/secrets.yaml"
+        volumeMounts:
+        - name: workdir
+          mountPath: "/processed"
+      {{- end }}
       {{- if .Values.secrets.gsm.enabled }}
       - name: init-secrets
         image: jenkinsxio/jenkins-x-installer:0.0.27

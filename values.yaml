@@ -17,6 +17,8 @@ boot:
   versionsGitRef: master
 
 secrets:
+  helmboot:
+    enabled: true
   gsm:
     enabled: false
   env:
