@@ -33,7 +33,7 @@ gcloud iam service-accounts create $CLUSTER_NAME-tk
 gcloud iam service-accounts create $CLUSTER_NAME-vo
 gcloud iam service-accounts create $CLUSTER_NAME-vt
 
-cat setup.yaml | sed "s/{namespace}/$NAMESPACE/" | sed "s/{project_id}/$PROJECT_ID/" | sed "s/{cluster_name}/$CLUSTER_NAME/" | kubectl apply -f -
+cat `dirname "$0"`/setup.yaml | sed "s/{namespace}/$NAMESPACE/" | sed "s/{project_id}/$PROJECT_ID/" | sed "s/{cluster_name}/$CLUSTER_NAME/" | kubectl apply -f -
 
 # external dns
 gcloud iam service-accounts add-iam-policy-binding \
