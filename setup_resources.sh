@@ -23,6 +23,7 @@ fi
 
 echo "setting up the cloud resources for ecluster $CLUSTER_NAME in project $PROJECT_ID"
 
+gcloud config set project $PROJECT_ID
 
 gcloud iam service-accounts create $CLUSTER_NAME-ex
 gcloud iam service-accounts create $CLUSTER_NAME-jb
