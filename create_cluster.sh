@@ -32,4 +32,4 @@ gcloud beta container clusters create $CLUSTER_NAME \
  --machine-type=n1-standard-4 \
  --num-nodes=2
 
-setup_resources.sh
+`dirname "$0"`/setup_resources.sh
