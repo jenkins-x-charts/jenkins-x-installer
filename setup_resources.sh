@@ -36,159 +36,146 @@ gcloud iam service-accounts create $CLUSTER_NAME-vt
 
 cat `dirname "$0"`/setup.yaml | sed "s/{namespace}/$NAMESPACE/" | sed "s/{project_id}/$PROJECT_ID/" | sed "s/{cluster_name}/$CLUSTER_NAME/" | kubectl apply -f -
 
+set +e 
+function retry {
+  local max_attempts=${ATTEMPTS-5}
+  local timeout=${TIMEOUT-3}
+  local attempt=0
+  local exitCode=0
+
+  while [[ $attempt < $max_attempts ]]
+  do
+    "$@"
+    exitCode=$?
+
+    if [[ $exitCode == 0 ]]
+    then
+      break
+    fi
+
+    echo "Failure! Retrying in $timeout.." 1>&2
+    sleep $timeout
+    attempt=$(( attempt + 1 ))
+    timeout=$(( timeout * 2 ))
+  done
+
+  if [[ $exitCode != 0 ]]
+  then
+    echo "You've failed me for the last time! ($@)" 1>&2
+  fi
+
+  return $exitCode
+}
+
+
 # external dns
-gcloud iam service-accounts add-iam-policy-binding \
+retry gcloud iam service-accounts add-iam-policy-binding \
   --role roles/iam.workloadIdentityUser \
   --member "serviceAccount:$PROJECT_ID.svc.id.goog[$NAMESPACE/externaldns-sa]" \
   $CLUSTER_NAME-ex@$PROJECT_ID.iam.gserviceaccount.com
 
-$SLEEP
-
-gcloud projects add-iam-policy-binding $PROJECT_ID \
+retry gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/dns.admin \
   --member "serviceAccount:$CLUSTER_NAME-ex@$PROJECT_ID.iam.gserviceaccount.com"
 
-$SLEEP
 
 # jx boot
-gcloud iam service-accounts add-iam-policy-binding \
+retry gcloud iam service-accounts add-iam-policy-binding \
   --role roles/iam.workloadIdentityUser \
   --member "serviceAccount:$PROJECT_ID.svc.id.goog[$NAMESPACE/boot-sa]" \
   $CLUSTER_NAME-jb@$PROJECT_ID.iam.gserviceaccount.com
 
-$SLEEP
-
-gcloud projects add-iam-policy-binding $PROJECT_ID \
+retry gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/dns.admin \
   --member "serviceAccount:$CLUSTER_NAME-jb@$PROJECT_ID.iam.gserviceaccount.com"
 
-$SLEEP
-
-gcloud projects add-iam-policy-binding $PROJECT_ID \
+retry gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/viewer \
   --member "serviceAccount:$CLUSTER_NAME-jb@$PROJECT_ID.iam.gserviceaccount.com"
 
-$SLEEP
-
-gcloud projects add-iam-policy-binding $PROJECT_ID \
+retry gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/iam.serviceAccountKeyAdmin \
   --member "serviceAccount:$CLUSTER_NAME-jb@$PROJECT_ID.iam.gserviceaccount.com"
 
-$SLEEP
-
-gcloud projects add-iam-policy-binding $PROJECT_ID \
+retry gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/storage.admin \
   --member "serviceAccount:$CLUSTER_NAME-jb@$PROJECT_ID.iam.gserviceaccount.com"
 
-$SLEEP
-
 # kaniko
-gcloud iam service-accounts add-iam-policy-binding \
+retry gcloud iam service-accounts add-iam-policy-binding \
   --role roles/iam.workloadIdentityUser \
   --member "serviceAccount:$PROJECT_ID.svc.id.goog[$NAMESPACE/kaniko-sa]" \
   $CLUSTER_NAME-ko@$PROJECT_ID.iam.gserviceaccount.com
 
-$SLEEP
-
-gcloud projects add-iam-policy-binding $PROJECT_ID \
+retry gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/storage.admin \
   --member "serviceAccount:$CLUSTER_NAME-ko@$PROJECT_ID.iam.gserviceaccount.com"
 
-$SLEEP
-
-gcloud projects add-iam-policy-binding $PROJECT_ID \
+retry gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/storage.objectAdmin \
   --member "serviceAccount:$CLUSTER_NAME-ko@$PROJECT_ID.iam.gserviceaccount.com"
 
-$SLEEP
-
-gcloud projects add-iam-policy-binding $PROJECT_ID \
+retry gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/storage.objectCreator \
   --member "serviceAccount:$CLUSTER_NAME-ko@$PROJECT_ID.iam.gserviceaccount.com"
 
-$SLEEP
-
 # tekton
-gcloud iam service-accounts add-iam-policy-binding \
+retry gcloud iam service-accounts add-iam-policy-binding \
   --role roles/iam.workloadIdentityUser \
   --member "serviceAccount:$PROJECT_ID.svc.id.goog[$NAMESPACE/tekton-sa]" \
   $CLUSTER_NAME-tk@$PROJECT_ID.iam.gserviceaccount.com
 
-$SLEEP
-
-gcloud projects add-iam-policy-binding $PROJECT_ID \
+retry gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/viewer \
   --member "serviceAccount:$CLUSTER_NAME-tk@$PROJECT_ID.iam.gserviceaccount.com"
 
-$SLEEP
-
 # storage
-gcloud iam service-accounts add-iam-policy-binding \
+retry gcloud iam service-accounts add-iam-policy-binding \
   --role roles/iam.workloadIdentityUser \
   --member "serviceAccount:$PROJECT_ID.svc.id.goog[$NAMESPACE/storage-sa]" \
   $CLUSTER_NAME-st@$PROJECT_ID.iam.gserviceaccount.com
 
-$SLEEP
-
-gcloud projects add-iam-policy-binding $PROJECT_ID \
+retry gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/storage.admin \
   --member "serviceAccount:$CLUSTER_NAME-st@$PROJECT_ID.iam.gserviceaccount.com"
 
-$SLEEP
-
-gcloud projects add-iam-policy-binding $PROJECT_ID \
+retry gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/storage.objectAdmin \
   --member "serviceAccount:$CLUSTER_NAME-st@$PROJECT_ID.iam.gserviceaccount.com"
 
-$SLEEP
-
 # velero
-gcloud iam service-accounts add-iam-policy-binding \
+retry gcloud iam service-accounts add-iam-policy-binding \
   --role roles/iam.workloadIdentityUser \
   --member "serviceAccount:$PROJECT_ID.svc.id.goog[$NAMESPACE/velero-sa]" \
   $CLUSTER_NAME-vo@$PROJECT_ID.iam.gserviceaccount.com
 
-$SLEEP
-
-gcloud projects add-iam-policy-binding $PROJECT_ID \
+retry gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/storage.admin \
   --member "serviceAccount:$CLUSTER_NAME-vo@$PROJECT_ID.iam.gserviceaccount.com"
 
-$SLEEP
-
-gcloud projects add-iam-policy-binding $PROJECT_ID \
+retry gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/storage.objectAdmin \
   --member "serviceAccount:$CLUSTER_NAME-vo@$PROJECT_ID.iam.gserviceaccount.com"
 
-$SLEEP
-
-gcloud projects add-iam-policy-binding $PROJECT_ID \
+retry gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/storage.objectCreator \
   --member "serviceAccount:$CLUSTER_NAME-vo@$PROJECT_ID.iam.gserviceaccount.com"
 
-$SLEEP
-
 # vault
-gcloud iam service-accounts add-iam-policy-binding \
+retry gcloud iam service-accounts add-iam-policy-binding \
   --role roles/iam.workloadIdentityUser \
   --member "serviceAccount:$PROJECT_ID.svc.id.goog[$NAMESPACE/vault-sa]" \
   $CLUSTER_NAME-vt@$PROJECT_ID.iam.gserviceaccount.com
 
-$SLEEP
-
-gcloud projects add-iam-policy-binding $PROJECT_ID \
+retry gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/storage.objectAdmin \
   --member "serviceAccount:$CLUSTER_NAME-vt@$PROJECT_ID.iam.gserviceaccount.com"
 
-$SLEEP
-
-gcloud projects add-iam-policy-binding $PROJECT_ID \
+retry gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/cloudkms.admin \
   --member "serviceAccount:$CLUSTER_NAME-vt@$PROJECT_ID.iam.gserviceaccount.com"
 
-$SLEEP
-
-gcloud projects add-iam-policy-binding $PROJECT_ID \
+retry gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/cloudkms.cryptoKeyEncrypterDecrypter \
   --member "serviceAccount:$CLUSTER_NAME-vt@$PROJECT_ID.iam.gserviceaccount.com"
 
