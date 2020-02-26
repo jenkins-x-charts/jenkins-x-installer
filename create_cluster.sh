@@ -3,6 +3,7 @@
 set -e
 
 ZONE=${ZONE:-europe-west1-b}
+LABELS=${LABELS:-mylabel=foo}
 
 if [ -z $PROJECT_ID ]
 then
@@ -29,6 +30,7 @@ gcloud beta container clusters create $CLUSTER_NAME \
  --project=$PROJECT_ID \
  --identity-namespace=$PROJECT_ID.svc.id.goog \
  --region=$ZONE \
+ --labels=$LABELS \
  --machine-type=n1-standard-4 \
  --num-nodes=2
 
