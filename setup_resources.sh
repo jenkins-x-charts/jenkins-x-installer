@@ -23,6 +23,7 @@ fi
 
 echo "setting up the cloud resources for ecluster $CLUSTER_NAME in project $PROJECT_ID"
 
+export SLEEP="sleep 2"
 gcloud config set project $PROJECT_ID
 
 gcloud iam service-accounts create $CLUSTER_NAME-ex
@@ -41,9 +42,13 @@ gcloud iam service-accounts add-iam-policy-binding \
   --member "serviceAccount:$PROJECT_ID.svc.id.goog[$NAMESPACE/externaldns-sa]" \
   $CLUSTER_NAME-ex@$PROJECT_ID.iam.gserviceaccount.com
 
+$SLEEP
+
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/dns.admin \
   --member "serviceAccount:$CLUSTER_NAME-ex@$PROJECT_ID.iam.gserviceaccount.com"
+
+$SLEEP
 
 # jx boot
 gcloud iam service-accounts add-iam-policy-binding \
@@ -51,21 +56,31 @@ gcloud iam service-accounts add-iam-policy-binding \
   --member "serviceAccount:$PROJECT_ID.svc.id.goog[$NAMESPACE/boot-sa]" \
   $CLUSTER_NAME-jb@$PROJECT_ID.iam.gserviceaccount.com
 
+$SLEEP
+
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/dns.admin \
   --member "serviceAccount:$CLUSTER_NAME-jb@$PROJECT_ID.iam.gserviceaccount.com"
+
+$SLEEP
 
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/viewer \
   --member "serviceAccount:$CLUSTER_NAME-jb@$PROJECT_ID.iam.gserviceaccount.com"
 
+$SLEEP
+
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/iam.serviceAccountKeyAdmin \
   --member "serviceAccount:$CLUSTER_NAME-jb@$PROJECT_ID.iam.gserviceaccount.com"
 
+$SLEEP
+
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/storage.admin \
   --member "serviceAccount:$CLUSTER_NAME-jb@$PROJECT_ID.iam.gserviceaccount.com"
+
+$SLEEP
 
 # kaniko
 gcloud iam service-accounts add-iam-policy-binding \
@@ -73,17 +88,25 @@ gcloud iam service-accounts add-iam-policy-binding \
   --member "serviceAccount:$PROJECT_ID.svc.id.goog[$NAMESPACE/kaniko-sa]" \
   $CLUSTER_NAME-ko@$PROJECT_ID.iam.gserviceaccount.com
 
+$SLEEP
+
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/storage.admin \
   --member "serviceAccount:$CLUSTER_NAME-ko@$PROJECT_ID.iam.gserviceaccount.com"
+
+$SLEEP
 
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/storage.objectAdmin \
   --member "serviceAccount:$CLUSTER_NAME-ko@$PROJECT_ID.iam.gserviceaccount.com"
 
+$SLEEP
+
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/storage.objectCreator \
   --member "serviceAccount:$CLUSTER_NAME-ko@$PROJECT_ID.iam.gserviceaccount.com"
+
+$SLEEP
 
 # tekton
 gcloud iam service-accounts add-iam-policy-binding \
@@ -91,9 +114,13 @@ gcloud iam service-accounts add-iam-policy-binding \
   --member "serviceAccount:$PROJECT_ID.svc.id.goog[$NAMESPACE/tekton-sa]" \
   $CLUSTER_NAME-tk@$PROJECT_ID.iam.gserviceaccount.com
 
+$SLEEP
+
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/viewer \
   --member "serviceAccount:$CLUSTER_NAME-tk@$PROJECT_ID.iam.gserviceaccount.com"
+
+$SLEEP
 
 # storage
 gcloud iam service-accounts add-iam-policy-binding \
@@ -101,13 +128,19 @@ gcloud iam service-accounts add-iam-policy-binding \
   --member "serviceAccount:$PROJECT_ID.svc.id.goog[$NAMESPACE/storage-sa]" \
   $CLUSTER_NAME-st@$PROJECT_ID.iam.gserviceaccount.com
 
+$SLEEP
+
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/storage.admin \
   --member "serviceAccount:$CLUSTER_NAME-st@$PROJECT_ID.iam.gserviceaccount.com"
 
+$SLEEP
+
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/storage.objectAdmin \
   --member "serviceAccount:$CLUSTER_NAME-st@$PROJECT_ID.iam.gserviceaccount.com"
+
+$SLEEP
 
 # velero
 gcloud iam service-accounts add-iam-policy-binding \
@@ -115,17 +148,25 @@ gcloud iam service-accounts add-iam-policy-binding \
   --member "serviceAccount:$PROJECT_ID.svc.id.goog[$NAMESPACE/velero-sa]" \
   $CLUSTER_NAME-vo@$PROJECT_ID.iam.gserviceaccount.com
 
+$SLEEP
+
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/storage.admin \
   --member "serviceAccount:$CLUSTER_NAME-vo@$PROJECT_ID.iam.gserviceaccount.com"
+
+$SLEEP
 
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/storage.objectAdmin \
   --member "serviceAccount:$CLUSTER_NAME-vo@$PROJECT_ID.iam.gserviceaccount.com"
 
+$SLEEP
+
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/storage.objectCreator \
   --member "serviceAccount:$CLUSTER_NAME-vo@$PROJECT_ID.iam.gserviceaccount.com"
+
+$SLEEP
 
 # vault
 gcloud iam service-accounts add-iam-policy-binding \
@@ -133,13 +174,19 @@ gcloud iam service-accounts add-iam-policy-binding \
   --member "serviceAccount:$PROJECT_ID.svc.id.goog[$NAMESPACE/vault-sa]" \
   $CLUSTER_NAME-vt@$PROJECT_ID.iam.gserviceaccount.com
 
+$SLEEP
+
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/storage.objectAdmin \
   --member "serviceAccount:$CLUSTER_NAME-vt@$PROJECT_ID.iam.gserviceaccount.com"
 
+$SLEEP
+
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/cloudkms.admin \
   --member "serviceAccount:$CLUSTER_NAME-vt@$PROJECT_ID.iam.gserviceaccount.com"
+
+$SLEEP
 
 gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/cloudkms.cryptoKeyEncrypterDecrypter \
