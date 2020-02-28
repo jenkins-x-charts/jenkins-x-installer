@@ -58,12 +58,7 @@ echo "setting up the cloud resources for ecluster $CLUSTER_NAME in project $PROJ
 export SLEEP="sleep 2"
 gcloud config set project $PROJECT_ID
 
-# lets setup google secret manager
 gcloud components update --no-user-output-enabled
-
-retry gcloud projects add-iam-policy-binding $PROJECT_ID \
-  --role roles/secretmanager.secretAccessor \
-  --member "serviceAccount:$CLUSTER_NAME-jb@$PROJECT_ID.iam.gserviceaccount.com"
 
 
 # setup the service accounts
@@ -188,6 +183,11 @@ retry gcloud projects add-iam-policy-binding $PROJECT_ID \
 retry gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/cloudkms.cryptoKeyEncrypterDecrypter \
   --member "serviceAccount:$CLUSTER_NAME-vt@$PROJECT_ID.iam.gserviceaccount.com"
+
+# lets setup google secret manager
+retry gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --role roles/secretmanager.secretAccessor \
+  --member "serviceAccount:$CLUSTER_NAME-jb@$PROJECT_ID.iam.gserviceaccount.com"
 
 # change to the new jx namespace
 jx ns $NAMESPACE
