@@ -42,12 +42,12 @@ spec:
       {{- end }}
       {{- if .Values.secrets.helmboot.enabled }}
       - name: init-secrets
-        image: jenkinsxio/jenkins-x-installer:0.0.31
+        image: gcr.io/jenkinsxio-labs/jxl:0.0.3
         command:
         - /bin/sh
         args:
         - -c
-        - "jxl helmboot secrets export -f /processed/secrets.yaml"
+        - "jxl boot secrets export --git-url {{ .Values.boot.bootGitURL }} -f /processed/secrets.yaml"
         volumeMounts:
         - name: workdir
           mountPath: "/processed"
