@@ -241,6 +241,8 @@ cp google-secrets-manager/secrets-template.yaml  google-secrets-manager/secrets.
 edit the `google-secrets-manager/secrets.yaml` file and add your secret values, then run
 
 ```bash
+gcloud services enable secretmanager.googleapis.com
+
 gcloud beta secrets create $CLUSTER_NAME-boot-secret --replication-policy automatic
 gcloud beta secrets versions add $CLUSTER_NAME-boot-secret --data-file ./google-secrets-manager/secrets.yaml
 
