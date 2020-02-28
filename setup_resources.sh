@@ -20,24 +20,8 @@ then
   exit 1
 fi
 
-
-echo "setting up the cloud resources for ecluster $CLUSTER_NAME in project $PROJECT_ID"
-
-export SLEEP="sleep 2"
-gcloud config set project $PROJECT_ID
-
-gcloud iam service-accounts create $CLUSTER_NAME-ex
-gcloud iam service-accounts create $CLUSTER_NAME-jb
-gcloud iam service-accounts create $CLUSTER_NAME-ko
-gcloud iam service-accounts create $CLUSTER_NAME-st
-gcloud iam service-accounts create $CLUSTER_NAME-tk
-gcloud iam service-accounts create $CLUSTER_NAME-vo
-gcloud iam service-accounts create $CLUSTER_NAME-vt
-
-cat `dirname "$0"`/setup.yaml | sed "s/{namespace}/$NAMESPACE/" | sed "s/{project_id}/$PROJECT_ID/" | sed "s/{cluster_name}/$CLUSTER_NAME/" | kubectl apply -f -
-
-set +e 
 function retry {
+  set +e
   local max_attempts=${ATTEMPTS-5}
   local timeout=${TIMEOUT-3}
   local attempt=0
@@ -66,6 +50,32 @@ function retry {
 
   return $exitCode
 }
+
+
+
+echo "setting up the cloud resources for ecluster $CLUSTER_NAME in project $PROJECT_ID"
+
+export SLEEP="sleep 2"
+gcloud config set project $PROJECT_ID
+
+# lets setup google secret manager
+gcloud components update --no-user-output-enabled
+
+retry gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --role roles/secretmanager.secretAccessor \
+  --member "serviceAccount:$CLUSTER_NAME-jb@$PROJECT_ID.iam.gserviceaccount.com"
+
+
+# setup the service accounts
+gcloud iam service-accounts create $CLUSTER_NAME-ex
+gcloud iam service-accounts create $CLUSTER_NAME-jb
+gcloud iam service-accounts create $CLUSTER_NAME-ko
+gcloud iam service-accounts create $CLUSTER_NAME-st
+gcloud iam service-accounts create $CLUSTER_NAME-tk
+gcloud iam service-accounts create $CLUSTER_NAME-vo
+gcloud iam service-accounts create $CLUSTER_NAME-vt
+
+cat `dirname "$0"`/setup.yaml | sed "s/{namespace}/$NAMESPACE/" | sed "s/{project_id}/$PROJECT_ID/" | sed "s/{cluster_name}/$CLUSTER_NAME/" | kubectl apply -f -
 
 
 # external dns
