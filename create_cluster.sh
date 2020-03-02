@@ -23,6 +23,7 @@ fi
 
 echo "creating a new cluster $CLUSTER_NAME in project $PROJECT_ID and region $ZONE"
 
+# CLI-DOC-GEN-START
 gcloud beta container clusters create $CLUSTER_NAME \
  --enable-autoscaling \
  --min-nodes=1 \
@@ -33,5 +34,6 @@ gcloud beta container clusters create $CLUSTER_NAME \
  --labels=$LABELS \
  --machine-type=n1-standard-4 \
  --num-nodes=2
+# CLI-DOC-GEN-END
 
 `dirname "$0"`/setup_resources.sh

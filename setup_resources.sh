@@ -56,6 +56,7 @@ function retry {
 echo "setting up the cloud resources for ecluster $CLUSTER_NAME in project $PROJECT_ID"
 
 export SLEEP="sleep 2"
+# CLI-DOC-GEN-START
 gcloud config set project $PROJECT_ID
 
 gcloud components update --no-user-output-enabled
@@ -190,6 +191,7 @@ retry gcloud projects add-iam-policy-binding $PROJECT_ID \
 retry gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role roles/secretmanager.secretAccessor \
   --member "serviceAccount:$CLUSTER_NAME-jb@$PROJECT_ID.iam.gserviceaccount.com"
+# CLI-DOC-GEN-END
 
 # change to the new jx namespace
 jx ns $NAMESPACE
