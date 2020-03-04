@@ -67,8 +67,7 @@ spec:
 
       containers:
       - args:
-        - experiments
-        - helmboot
+        - boot
         - run
         - -b
         - --git-url
@@ -80,7 +79,7 @@ spec:
         - --versions-ref
         - {{ .Values.boot.versionsGitRef | quote }}
         command:
-        - jx
+        - jxl
 
         env:
         - name: GIT_COMMITTER_EMAIL
