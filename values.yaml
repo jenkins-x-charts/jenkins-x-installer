@@ -1,5 +1,4 @@
 boot:
-  namespace:
   clusterName:
   bootGitURL: https://github.com/jenkins-x/jenkins-x-boot-helmfile-config.git
   #bootGitURL: https://github.com/rawlingsj/jenkins-x-boot-helmfile-config.git
