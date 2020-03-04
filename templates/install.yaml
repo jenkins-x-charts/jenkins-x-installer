@@ -4,7 +4,6 @@ metadata:
   labels:
     release: jenkins-x
   name: jx-boot
-  namespace: {{ .Values.boot.namespace }}
 spec:
   backoffLimit: 5
   completions: 1
@@ -70,7 +69,6 @@ spec:
         - boot
         - run
         - -b
-        - --job
         - --git-url
         - {{ .Values.boot.bootGitURL | quote }}
         - --git-ref
@@ -100,8 +98,6 @@ spec:
           value: "true"
         - name: JX_HELMFILE
           value: "true"
-        - name: JX_SECRETS_DIR
-          value: /secrets/secrets.yaml
         - name: JX_SECRETS_YAML
           value: /secrets/secrets.yaml
         - name: JX_INTERPRET_PIPELINE
