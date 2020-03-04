@@ -42,7 +42,7 @@ spec:
       {{- end }}
       {{- if .Values.secrets.helmboot.enabled }}
       - name: init-secrets
-        image: gcr.io/jenkinsxio-labs/jxl:0.0.3
+        image: gcr.io/jenkinsxio-labs/jxl:0.0.45
         command:
         - /bin/sh
         args:
@@ -54,7 +54,7 @@ spec:
       {{- end }}
       {{- if .Values.secrets.gsm.enabled }}
       - name: init-secrets
-        image: jenkinsxio/jenkins-x-installer:0.0.27
+        image: gcr.io/jenkinsxio-labs/jxl:0.0.45
         command:
         - /bin/sh
         args:
@@ -67,10 +67,10 @@ spec:
 
       containers:
       - args:
-        - experiments
-        - helmboot
+        - boot
         - run
         - -b
+        - --job
         - --git-url
         - {{ .Values.boot.bootGitURL | quote }}
         - --git-ref
@@ -80,7 +80,7 @@ spec:
         - --versions-ref
         - {{ .Values.boot.versionsGitRef | quote }}
         command:
-        - jx
+        - jxl
 
         env:
         - name: GIT_COMMITTER_EMAIL
@@ -147,7 +147,7 @@ spec:
           value: {{ .Values.boot.userEmail | quote }}
         - name: JX_HOME
           value: /secrets
-        image: jenkinsxio/jenkins-x-installer:0.0.27
+        image: gcr.io/jenkinsxio-labs/jxl:0.0.45
         imagePullPolicy: IfNotPresent
         name: boot
         volumeMounts:
