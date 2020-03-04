@@ -92,7 +92,7 @@ spec:
           value: {{ .Values.boot.userEmail | quote }}
         - name: JX_HOME
           value: /secrets
-        image: gcr.io/jenkinsxio-labs/jxl:0.0.47
+        image: gcr.io/jenkinsxio-labs/jxl:0.0.52
         imagePullPolicy: IfNotPresent
         name: boot
         volumeMounts:
