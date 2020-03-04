@@ -13,57 +13,6 @@ spec:
       labels:
         release: jenkins-x
     spec:
-      initContainers:
-      {{- if .Values.secrets.env.enabled }}
-      - name: init-secrets
-        image: jenkinsxio/envsubst:0.0.1
-        args:
-        - secrets.yaml
-        env:
-        - name: ADMINUSER_USERNAME
-          value: {{ .Values.secrets.adminUser.username | quote }}
-        - name: ADMINUSER_PASSWORD
-          value: {{ .Values.secrets.adminUser.password | quote }}
-        - name: HMACTOKEN
-          value: {{ .Values.secrets.hmacToken | quote }}
-        - name: PIPELINEUSER_USERNAME
-          value: {{ .Values.secrets.pipelineUser.username | quote }}
-        - name: PIPELINEUSER_EMAIL
-          value: {{ .Values.secrets.pipelineUser.email | quote }}
-        - name: PIPELINEUSER_TOKEN
-          value: {{ .Values.secrets.pipelineUser.token | quote }}
-        volumeMounts:
-        - name: config-volume
-          mountPath: /workdir/secrets.yaml
-          subPath: secrets.yaml
-        - name: workdir
-          mountPath: "/processed"
-      {{- end }}
-      {{- if .Values.secrets.helmboot.enabled }}
-      - name: init-secrets
-        image: gcr.io/jenkinsxio-labs/jxl:0.0.47
-        command:
-        - /bin/sh
-        args:
-        - -c
-        - "jxl boot secrets export --git-url {{ .Values.boot.bootGitURL }} -f /processed/secrets.yaml"
-        volumeMounts:
-        - name: workdir
-          mountPath: "/processed"
-      {{- end }}
-      {{- if .Values.secrets.gsm.enabled }}
-      - name: init-secrets
-        image: gcr.io/jenkinsxio-labs/jxl:0.0.47
-        command:
-        - /bin/sh
-        args:
-        - -c
-        - "gcloud beta secrets versions access latest --secret={{ .Values.boot.clusterName }}-boot-secret > /processed/secrets.yaml -q" # pragma: allowlist secret
-        volumeMounts:
-        - name: workdir
-          mountPath: "/processed"
-      {{- end }}
-
       containers:
       - args:
         - boot
@@ -99,7 +48,7 @@ spec:
         - name: JX_HELMFILE
           value: "true"
         - name: JX_SECRETS_YAML
-          value: /secrets/secrets.yaml
+          value: /secrets/jx-boot/secrets.yaml
         - name: JX_INTERPRET_PIPELINE
           value: "true"
         - name: JX_REQUIREMENT_TERRAFORM
@@ -147,13 +96,14 @@ spec:
         imagePullPolicy: IfNotPresent
         name: boot
         volumeMounts:
-          - name: workdir
-            mountPath: "/secrets"
+        - mountPath: /secrets/jx-boot
+          name: jx-boot-secrets
       restartPolicy: Never
       serviceAccount: boot-sa
       volumes:
-      - name: workdir
-        emptyDir: {}
+      - name: jx-boot-secrets
+        secret:
+          secretName: jx-boot-secrets
       {{- if .Values.secrets.env.enabled }}
       - name: config-volume
         configMap:
